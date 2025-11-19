@@ -60,6 +60,13 @@ parse_arg() {
     esac
 }
 
+arg_offset() {
+    case "$1" in
+        *=*) echo 0 ;;
+        *)   echo 1 ;;
+    esac
+}
+
 humanpath() {
     sed "s# $HOME# ~#g; s#'$HOME#'\$HOME#g; s#\"$HOME#\"\$HOME#g"
 }
@@ -86,40 +93,25 @@ main() {
             --noenc)
                 ENC_OPT="-noenc"
                 ;;
-            --days)
+            --days | --days=*)
                 DAYS="$(parse_arg "$@")"
-                shift
+                shift $(arg_offset "$@")
                 ;;
-            --days=*)
-                DAYS="$(parse_arg "$@")"
-                ;;
-            --common-name)
+            --common-name | --common-name=*)
                 COMMON_NAME="$(parse_arg "$@")"
-                shift
+                shift $(arg_offset "$@")
                 ;;
-            --common-name=*)
-                COMMON_NAME="$(parse_arg "$@")"
-                ;;
-            --organization)
+            --organization | --organization=*)
                 ORGANIZATION="$(parse_arg "$@")"
-                shift
+                shift $(arg_offset "$@")
                 ;;
-            --organization=*)
-                ORGANIZATION="$(parse_arg "$@")"
-                ;;
-            --unit)
+            --unit | --unit=*)
                 ORGANIZATIONAL_UNIT="$(parse_arg "$@")"
-                shift
+                shift $(arg_offset "$@")
                 ;;
-            --unit=*)
-                ORGANIZATIONAL_UNIT="$(parse_arg "$@")"
-                ;;
-            -o | --out-name)
+            -o | --out-name | -o=* | --out-name=*)
                 OUT_NAME="$(parse_arg "$@")"
-                shift
-                ;;
-            -o=* | --out-name=*)
-                OUT_NAME="$(parse_arg "$@")"
+                shift $(arg_offset "$@")
                 ;;
             --)
                 shift

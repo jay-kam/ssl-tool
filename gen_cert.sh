@@ -66,6 +66,13 @@ parse_arg() {
     esac
 }
 
+arg_offset() {
+    case "$1" in
+        *=*) echo 0 ;;
+        *)   echo 1 ;;
+    esac
+}
+
 humanpath() {
     sed "s# $HOME# ~#g; s#'$HOME#'\$HOME#g; s#\"$HOME#\"\$HOME#g"
 }
@@ -89,68 +96,41 @@ main() {
             --view-cert)
                 VIEW_CERT=1
                 ;;
-            --days)
+            --days | --days=*)
                 DAYS="$(parse_arg "$@")"
-                shift
+                shift $(arg_offset "$@")
                 ;;
-            --days=*)
-                DAYS="$(parse_arg "$@")"
-                ;;
-            --ca-cert)
+            --ca-cert | --ca-cert=*)
                 CA_CERT="$(parse_arg "$@")"
-                shift
+                shift $(arg_offset "$@")
                 ;;
-            --ca-cert=*)
-                CA_CERT="$(parse_arg "$@")"
-                ;;
-            --ca-key)
+            --ca-key | --ca-key=*)
                 CA_KEY="$(parse_arg "$@")"
-                shift
+                shift $(arg_offset "$@")
                 ;;
-            --ca-key=*)
-                CA_KEY="$(parse_arg "$@")"
-                ;;
-            --url-ca-cert)
+            --url-ca-cert | --url-ca-cert=*)
                 URL_CA_CERT="$(parse_arg "$@")"
-                shift
+                shift $(arg_offset "$@")
                 ;;
-            --url-ca-cert=*)
-                URL_CA_CERT="$(parse_arg "$@")"
-                ;;
-            --url-ca-key)
+            --url-ca-key | --url-ca-key=*)
                 URL_CA_KEY="$(parse_arg "$@")"
-                shift
+                shift $(arg_offset "$@")
                 ;;
-            --url-ca-key=*)
-                URL_CA_KEY="$(parse_arg "$@")"
-                ;;
-            --common-name)
+            --common-name | --common-name=*)
                 COMMON_NAME="$(parse_arg "$@")"
-                shift
+                shift $(arg_offset "$@")
                 ;;
-            --common-name=*)
-                COMMON_NAME="$(parse_arg "$@")"
-                ;;
-            --organization)
+            --organization | --organization=*)
                 ORGANIZATION="$(parse_arg "$@")"
-                shift
+                shift $(arg_offset "$@")
                 ;;
-            --organization=*)
-                ORGANIZATION="$(parse_arg "$@")"
-                ;;
-            --unit)
+            --unit | --unit=*)
                 ORGANIZATIONAL_UNIT="$(parse_arg "$@")"
-                shift
+                shift $(arg_offset "$@")
                 ;;
-            --unit=*)
-                ORGANIZATIONAL_UNIT="$(parse_arg "$@")"
-                ;;
-            -o | --out-name)
+            -o | --out-name | -o=* | --out-name=*)
                 OUT_NAME="$(parse_arg "$@")"
-                shift
-                ;;
-            -o=* | --out-name=*)
-                OUT_NAME="$(parse_arg "$@")"
+                shift $(arg_offset "$@")
                 ;;
             --)
                 shift
@@ -258,8 +238,6 @@ main() {
                 -days ${DAYS:-3650} \
                 -subj "$SUBJ" \
                 -addext "subjectAltName=$SubjectAltName" \
-                -newkey rsa:2048 \
-                -extensions v3_ca \
                 -keyout $CA_KEY \
                 -out $CA_CERT
             exit 0
